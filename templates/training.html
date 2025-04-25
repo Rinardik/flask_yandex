@@ -2,7 +2,22 @@
 
 {% block content %}
     <div class="content">
-        <h2>{{ title }}</h2>
-        <img src="{{ image }}" alt="{{ title }}">
+        {% if code_prof == "ol" %}
+            <h2>Список профессий</h2>
+            <ol type="1">
+                <li>инженер-исследователь</li>
+                <li>пилот</li>
+                <li>строитель</li>
+            </ol>
+        {% elif code_prof == "ul" %}
+            <h2>Список профессий</h2>
+            <ul type="disc">
+                <li>экзобиолог</li>
+                <li>климатолог</li>
+                <li>врач</li>
+            </ul>            
+        {% else %}
+                <h2>Неверные параметры</h2>
+        {% endif %}
     </div>
 {% endblock %}

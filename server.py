@@ -2,16 +2,15 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
-@app.route('/training/<prof>')
-def training(prof):
-    if 'инженер' in prof.lower() or 'строитель' in prof.lower():
-        title = "Инженерные тренажеры"
-        image = "/static/img/engineering.jpg"
+@app.route('/list_prof/<list_code>')
+def training(list_code):
+    if 'ol' in list_code.lower():
+        code_prof = "ol"
+    elif 'ul' in list_code.lower():
+        code_prof = "ul"
     else:
-        title = "Научные симуляторы"
-        image = "/static/img/science.jpg"
-
-    return render_template('training.html', title=title, image=image)
+        code_prof ='error'
+    return render_template('training.html', code_prof=code_prof)
 
 if __name__ == '__main__':
     app.run(debug=True)
