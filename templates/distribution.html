@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Размещение по каютам{% endblock %}
+
+{% block content %}
+    <h3>Размещение по каютам</h3>
+    {% for astronaut in astronauts %}
+        <div>
+            {% if loop.first %}
+                {{ astronaut }} - Каюта № {{loop.index }}:  — капитан корабля
+            {% else %}
+                {{ astronaut }} - Каюта № {{loop.index }}:
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}
