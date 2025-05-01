@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+ 
+ {% block content %}
+ <div class="center-container">
+     {% if 'инженер' in prof.lower() or 'строитель' in prof.lower() %}
+         <h2>Инженерные тренажеры</h2>
+         <img src="/static/img/engineering.jpg" alt="Инженерные тренажеры">
+     {% else %}
+         <h2>Научные симуляторы</h2>
+         <img src="/static/img/science.jpg" alt="Научные симуляторы">
+     {% endif %}
+ </div>
+ {% endblock %}
