@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="content">
+        {% if member %}
+            <h2>{{ member.first_name }} {{ member.last_name }}</h2>
+            <img src="{{ member.photo }}" alt="Фото {{ member.first_name }}" width="200"><br><br>
+            {% for prof in member.professions|sort %}
+                {{ prof }},
+            {% endfor %}
+        {% else %}
+            <p>Не удалось загрузить информацию о члене экипажа.</p>
+        {% endif %}
+    </div>
+{% endblock %}

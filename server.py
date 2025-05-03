@@ -1,29 +1,21 @@
-from flask import Flask, render_template_string, url_for, request, redirect
+from flask import Flask, render_template
+import json
+import random
 import os
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+CREW_JSON_PATH = os.path.join(app.root_path, 'templates', 'astr.json')
 
-@app.route('/galery')
-def index():
-    default_images = ['img/mars1.jpg',
-        'img/mars2.jpg',
-        'img/mars3.jpg']
-    uploaded_files = [f'uploads/{f}' for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-    images = default_images + uploaded_files
-    return render_template_string(open('gal.html').read(), images=images)
+def get_random_crew_member():
+    with open(CREW_JSON_PATH, encoding='utf-8') as f:
+        crew = json.load(f)
+    return random.choice(crew)
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_image():
-    if request.method == 'POST':
-        file = request.files.get('photo')
-        if file and file.filename != '':
-            filename = file.filename
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('index'))
-    return render_template_string(open('ins.html').read(), image_url=url_for('static', filename='css/style.css')[:-len('style.css')] + 'img/placeholder.jpg')
+@app.route('/member')
+def member():
+    member_data = get_random_crew_member()
+    return render_template('member.html', member=member_data)
 
 if __name__ == '__main__':
-    app.run(port=8080, host='127.0.0.1')
+    app.run(debug=True)
