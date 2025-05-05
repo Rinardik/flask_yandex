@@ -3,17 +3,28 @@
 
 {% block content %}
   <h1>Список работ</h1>
-  <ul>
+
+  {% if current_user.is_authenticated %}
+    <p><a href="{{ url_for('add_job') }}" class="btn btn-primary">Добавить работу</a></p>
+  {% endif %}
+
+  <ul class="list-group">
     {% for job in jobs %}
-      <li>
-        {{ job.job_title }} ({{ job.work_size }} ч.) — 
-        {% if job.is_finished %} выполнено {% else %} в процессе {% endif %}
-        <a href="{{ url_for('edit_job', job_id=job.id) }}">[редактировать]</a>
-        <form action="{{ url_for('delete_job', job_id=job.id) }}" method="post" style="display:inline;">
-          <input type="submit" value="[удалить]" onclick="return confirm('Вы уверены?')">
-        </form>
+      <li class="list-group-item">
+        <strong>{{ job.job_title }}</strong>
+        ({{ job.work_size }} ч.)
+        — {{ "выполнено" if job.is_finished else "в процессе" }}
+        
+        <div class="btn-group float-end" role="group">
+          {% if current_user.id == job.team_leader_id or current_user.id == 1 %}
+            <a href="{{ url_for('edit_job', job_id=job.id) }}" class="btn btn-warning btn-sm">Изменить</a>
+            
+            <form action="{{ url_for('delete_job', job_id=job.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Вы уверены?');">
+              <input type="submit" value="Удалить" class="btn btn-danger btn-sm">
+            </form>
+          {% endif %}
+        </div>
       </li>
     {% endfor %}
   </ul>
-  <p><a href="/addjob">Добавить новую работу</a></p>
 {% endblock %}
