@@ -119,6 +119,22 @@ def edit_job(job_id):
         form.is_finished.data = job.is_finished
 
     return render_template('add_job.html', title='Редактировать работу', form=form)
+
+
+@app.route('/jobs/<int:job_id>/delete', methods=['POST'])
+@login_required
+def delete_job(job_id):
+    db_sess = db_session.create_session()
+
+    job = db_sess.query(Job).get(job_id)
+    if not job:
+        abort(404)
+    if job.team_leader_id != current_user.id and current_user.id != 1:
+        abort(403)
+    db_sess.delete(job)
+    db_sess.commit()
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     db_path = "db/blogs.db"
     db_session.global_init(db_path)

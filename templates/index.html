@@ -7,8 +7,11 @@
     {% for job in jobs %}
       <li>
         {{ job.job_title }} ({{ job.work_size }} ч.) — 
-        {% if job.is_finished %} выполнено {% else %} в процессе {% endif %} 
-          <a href="{{ url_for('edit_job', job_id=job.id) }}">[редактировать]</a>
+        {% if job.is_finished %} выполнено {% else %} в процессе {% endif %}
+        <a href="{{ url_for('edit_job', job_id=job.id) }}">[редактировать]</a>
+        <form action="{{ url_for('delete_job', job_id=job.id) }}" method="post" style="display:inline;">
+          <input type="submit" value="[удалить]" onclick="return confirm('Вы уверены?')">
+        </form>
       </li>
     {% endfor %}
   </ul>
