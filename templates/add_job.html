@@ -1,57 +1,53 @@
 {% extends "base.html" %}
 
-{% block title %}
-  Добавить работу
-{% endblock %}
+{% block title %}Добавить работу{% endblock %}
 
 {% block content %}
-  <h2>Добавить новую работу</h2>
+<h1>Добавить работу</h1>
 
-  <form action="{{ url_for('add_job') }}" method="post">
+<form method="POST" action="">
     {{ form.hidden_tag() }}
 
     <div class="mb-3">
-      {{ form.job_title.label(class="form-label") }}
-      {{ form.job_title(class="form-control") }}
-      {% for error in form.job_title.errors %}
-        <div class="alert alert-danger">{{ error }}</div>
-      {% endfor %}
+        {{ form.job_title.label(class="form-label") }}
+        {{ form.job_title(class="form-control") }}
+        {% for error in form.job_title.errors %}
+            <span class="text-danger">{{ error }}</span>
+        {% endfor %}
     </div>
 
     <div class="mb-3">
-      {{ form.team_leader_id.label(class="form-label") }}
-      {{ form.team_leader_id(class="form-control", type="number") }}
-      {% for error in form.team_leader_id.errors %}
-        <div class="alert alert-danger">{{ error }}</div>
-      {% endfor %}
+        {{ form.team_leader_id.label(class="form-label") }}
+        {{ form.team_leader_id(class="form-select") }}
+        {% for error in form.team_leader_id.errors %}
+            <span class="text-danger">{{ error }}</span>
+        {% endfor %}
     </div>
 
     <div class="mb-3">
-      {{ form.work_size.label(class="form-label") }}
-      {{ form.work_size(class="form-control", type="number") }}
-      {% for error in form.work_size.errors %}
-        <div class="alert alert-danger">{{ error }}</div>
-      {% endfor %}
+        {{ form.work_size.label(class="form-label") }}
+        {{ form.work_size(class="form-control") }}
+        {% for error in form.work_size.errors %}
+            <span class="text-danger">{{ error }}</span>
+        {% endfor %}
     </div>
 
     <div class="mb-3">
-      {{ form.collaborators.label(class="form-label") }}
-      {{ form.collaborators(class="form-control", rows=3) }}
-      {% for error in form.collaborators.errors %}
-        <div class="alert alert-danger">{{ error }}</div>
-      {% endfor %}
+        {{ form.collaborators.label(class="form-label") }}
+        {{ form.collaborators(class="form-control", rows="3") }}
+        {% for error in form.collaborators.errors %}
+            <span class="text-danger">{{ error }}</span>
+        {% endfor %}
     </div>
 
     <div class="mb-3">
-      {{ form.is_finished.label(class="form-check-label") }}
-      {{ form.is_finished(class="form-check-input") }}
-      {% for error in form.is_finished.errors %}
-        <div class="alert alert-danger">{{ error }}</div>
-      {% endfor %}
+        {{ form.is_finished.label(class="form-check-label") }}
+        {{ form.is_finished(class="form-check-input") }}
+        {% for error in form.is_finished.errors %}
+            <span class="text-danger">{{ error }}</span>
+        {% endfor %}
     </div>
 
-    <div class="mb-3">
-      {{ form.submit(class="btn btn-primary") }}
-    </div>
-  </form>
+    <p>{{ form.submit(class="btn btn-primary") }}</p>
+</form>
 {% endblock %}

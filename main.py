@@ -6,10 +6,18 @@ from data.jobs import Job
 from forms.login import LoginForm
 from forms.user import RegisterForm
 from forms.job import JobForm
-
+from data.departments import Department
+from forms.department import DepartmentForm
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mars_explorer_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{'db/blogs.db'}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -46,7 +54,7 @@ def login():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        if form.password.data != form.confirm_password.data:
+        if form.password.data != form.password_again.data:
             return render_template('register.html', message='Пароли не совпадают', form=form)
 
         db_sess = db_session.create_session()
@@ -134,6 +142,94 @@ def delete_job(job_id):
     db_sess.delete(job)
     db_sess.commit()
     return redirect(url_for('index'))
+
+
+@app.route('/departments')
+def departments_list():
+    db_sess = db_session.create_session()
+    departments_list = db_sess.query(Department).all()
+    return render_template('departments.html', departments=departments_list)
+
+
+@app.route('/departments/add', methods=['GET', 'POST'])
+@login_required
+def add_department():
+    form = DepartmentForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        department = Department()
+        department.title = form.title.data
+        department.chief_id = int(form.chief_id.data)
+        department.members = form.members.data
+        department.email = form.email.data
+        db_sess.add(department)
+        db_sess.commit()
+        return redirect(url_for('departments_list'))
+    return render_template('edit_department.html', title='Добавить департамент', form=form)
+
+
+@app.route('/departments/<int:department_id>', methods=['GET', 'POST'])
+@login_required
+def edit_department(department_id):
+    form = DepartmentForm()
+    db_sess = db_session.create_session()
+    department = db_sess.query(Department).get(department_id)
+
+    if not department:
+        abort(404)
+
+    if department.chief_id != current_user.id and current_user.id != 1:
+        abort(403)
+
+    if form.validate_on_submit():
+        department.title = form.title.data
+        department.chief_id = int(form.chief_id.data)
+        department.members = form.members.data
+        department.email = form.email.data
+
+        db_sess.commit()
+        return redirect(url_for('departments_list'))
+
+    elif request.method == 'GET':
+        form.title.data = department.title
+        form.chief_id.data = str(department.chief_id)
+        form.members.data = department.members
+        form.email.data = department.email
+
+    return render_template('edit_department.html', title='Редактировать департамент', form=form)
+
+
+@app.route('/departments/<int:department_id>/delete', methods=['POST'])
+@login_required
+def delete_department(department_id):
+    db_sess = db_session.create_session()
+    department = db_sess.query(Department).get(department_id)
+
+    if not department:
+        abort(404)
+
+    if department.chief_id != current_user.id and current_user.id != 1:
+        abort(403)
+
+    db_sess.delete(department)
+    db_sess.commit()
+
+    return redirect(url_for('departments_list'))
+
+
+@app.route('/add_test_job')
+def add_test_job():
+    db_sess = db_session.create_session()
+    job = Job()
+    job.job_title = "Исследование грунта"
+    job.team_leader_id = 1
+    job.work_size = 10
+    job.collaborators = "2,3"
+    job.is_finished = False
+    db_sess.add(job)
+    db_sess.commit()
+    return "Работа добавлена"
+
 
 if __name__ == '__main__':
     db_path = "db/blogs.db"
