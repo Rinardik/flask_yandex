@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+  <h1>Список работ</h1>
+  <ul>
+    {% for job in jobs %}
+      <li>
+        {{ job.job_title }} ({{ job.work_size }} ч.) — 
+        {% if job.is_finished %} выполнено {% else %} в процессе {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  <p><a href="/addjob">Добавить новую работу</a></p>
+{% endblock %}

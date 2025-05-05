@@ -1,58 +1,99 @@
-from flask import Flask, render_template, request, redirect, url_for
-import os
-from data.db_session import global_init, create_session
+from flask import Flask, render_template, redirect, url_for
+from flask_login import LoginManager, login_user, login_required, logout_user
+from data import db_session
 from data.users import User
+from data.jobs import Job
+from forms.login import LoginForm
 from forms.user import RegisterForm
+from forms.job import JobForm
+
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-base_dir = os.path.dirname(os.path.abspath(__file__))
-db_dir = os.path.join(base_dir, 'db')
-os.makedirs(db_dir, exist_ok=True)
+app.config['SECRET_KEY'] = 'mars_explorer_secret_key'
 
-db_path = os.path.join(db_dir, 'blogs.db')
-global_init(db_path)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
+
+
+@app.route('/')
+def index():
+    db_sess = db_session.create_session()
+    jobs_list = db_sess.query(Job).all()
+    return render_template('index.html', jobs=jobs_list)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect(url_for('index'))
+        return render_template('login.html', message='Неверный логин или пароль', form=form)
+    return render_template('login.html', title='Вход', form=form)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
-            return render_template(
-                'register.html',
-                title='Регистрация',
-                form=form,
-                message="Пароли не совпадают"
-            )
+        if form.password.data != form.confirm_password.data:
+            return render_template('register.html', message='Пароли не совпадают', form=form)
 
-        db_sess = create_session()
-
+        db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template(
-                'register.html',
-                title='Регистрация',
-                form=form,
-                message="Такой пользователь уже существует"
-            )
+            return render_template('register.html', message='Такой пользователь уже существует', form=form)
 
         user = User()
-        user.surname = form.surname.data
         user.name = form.name.data
-        user.age = form.age.data
-        user.position = form.position.data
-        user.speciality = form.speciality.data
-        user.address = form.address.data
+        user.surname = form.surname.data
         user.email = form.email.data
         user.set_password(form.password.data)
+
         db_sess.add(user)
         db_sess.commit()
-        return redirect(url_for('success'))
+
+        return redirect(url_for('login'))
+
     return render_template('register.html', title='Регистрация', form=form)
 
-@app.route('/success')
-def success():
-    return "Регистрация успешна!"
+
+@app.route('/addjob', methods=['GET', 'POST'])
+@login_required
+def add_job():
+    form = JobForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        job = Job()
+        job.job_title = form.job_title.data
+        job.team_leader_id = form.team_leader_id.data
+        job.work_size = form.work_size.data
+        job.collaborators = form.collaborators.data
+        job.is_finished = form.is_finished.data
+        db_sess.add(job)
+        db_sess.commit()
+        return redirect(url_for('index'))
+    return render_template('add_job.html', title='Добавить работу', form=form)
+
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    db_path = "db/blog.db"
+    db_session.global_init(db_path)
+    app.run(port=8080, host='127.0.0.1', debug=True)

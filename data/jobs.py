@@ -1,20 +1,12 @@
-import sqlalchemy
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
 from .db_session import SqlAlchemyBase
-from .users import User
+import sqlalchemy
 
-
-class Jobs(SqlAlchemyBase):
+class Job(SqlAlchemyBase):
     __tablename__ = 'jobs'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    team_leader = Column(Integer, ForeignKey('users.id'))
-    job = Column(String, nullable=True)
-    work_size = Column(Integer)
-    collaborators = Column(String, nullable=True)
-    created_date = Column(String)
-    start_date = Column(DateTime)
-    end_date = Column(DateTime)
-    is_finished = Column(Boolean)
-    leader = relationship("User")
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    job_title = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    team_leader_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
+    work_size = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    collaborators = sqlalchemy.Column(sqlalchemy.String, default='')
+    is_finished = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
