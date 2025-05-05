@@ -8,14 +8,14 @@
 <div class="d-flex justify-content-between mb-3">
     <a href="{{ url_for('departments_list') }}" class="btn btn-secondary">Back to Departments</a>
     {% if current_user.is_authenticated %}
-        <a href="{{ url_for('add_job') }}" class="btn btn-primary">Добавить работу</a>
+        <a href="{{ url_for('add_job') }}" class="btn btn-secondary">add a job</a>
     {% endif %}
 </div>
 
 {% for job in jobs %}
 <div class="card mb-3">
     <div class="card-header">
-        Работа #{{ job.id }}
+        Job #{{ job.id }}
     </div>
     <div class="card-body">
         <table class="table table-striped">
