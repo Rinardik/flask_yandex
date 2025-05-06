@@ -10,6 +10,7 @@ from data.departments import Department
 from forms.department import DepartmentForm
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from data import db_session, news_api
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mars_explorer_secret_key'
@@ -75,23 +76,23 @@ def register():
     return render_template('register.html', title='Регистрация', form=form)
 
 
-@app.route('/addjob', methods=['GET', 'POST'])
+@app.route('/add_job', methods=['GET', 'POST'])
 @login_required
 def add_job():
     form = JobForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        job = Job()
-        job.job_title = form.job_title.data
-        job.team_leader_id = form.team_leader_id.data
-        job.work_size = form.work_size.data
-        job.collaborators = form.collaborators.data
-        job.is_finished = form.is_finished.data
+        job = Job(
+job_title=form.job_title.data,
+            team_leader_id=form.team_leader_id.data,
+            work_size=form.work_size.data,
+            collaborators=form.collaborators.data,
+            hazard_category_id=form.hazard_category_id.data,
+            is_finished=form.is_finished.data)
         db_sess.add(job)
         db_sess.commit()
         return redirect(url_for('index'))
     return render_template('add_job.html', title='Добавить работу', form=form)
-
 
 @app.route('/logout')
 @login_required
@@ -230,6 +231,37 @@ def add_test_job():
     db_sess.commit()
     return "Работа добавлена"
 
+
+@app.route('/init_db')
+def init_db():
+    from data.hazard_category import HazardCategory
+    db_path = "db/blogs.db"
+    db_session.global_init(db_path)
+    db_sess = db_session.create_session()
+    if not db_sess.query(HazardCategory).first():
+        categories = [
+            HazardCategory(name="Очень низкая"),
+            HazardCategory(name="Низкая"),
+            HazardCategory(name="Средняя"),
+            HazardCategory(name="Высокая"),
+            HazardCategory(name="Очень высокая")
+        ]
+        db_sess.add_all(categories)
+        db_sess.commit()
+    return "База данных инициализирована с категориями!"
+
+@app.route('/users_show/<int:user_id>')
+def user_city(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.get(User, user_id)
+    if not user:
+        abort(404)
+    return render_template('user_city.html', user=user)
+
+def main():
+    db_session.global_init("db/blogs.db")
+    app.register_blueprint(news_api.blueprint)
+    app.run()
 
 if __name__ == '__main__':
     db_path = "db/blogs.db"
