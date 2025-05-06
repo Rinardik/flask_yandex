@@ -33,3 +33,47 @@ form.login_form {
 h3 {
     color: rgb(182, 182, 182)
 }
+
+.half-screen_lower_man {
+    width: 20vw;
+    height: 30vh;
+    background-color: rgb(248, 149, 99);
+    z-index: -1;
+}
+.half-screen_big_man {
+    width: 20vw;
+    height: 30vh;
+    background-color: rgb(255, 85, 0);
+    z-index: -1;
+}
+.half-screen_lower_women {
+    width: 20vw;
+    height: 30vh;
+    background-color: rgb(255, 85, 0);
+    z-index: -1;
+}
+.half-screen_lower_women {
+    width: 20vw;
+    height: 30vh;
+    background-color: rgb(145, 180, 255);
+    z-index: -1;
+}
+.half-screen_big_women {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20vw;
+    height: 30vh;
+    background-color: rgb(0, 78, 246);
+    z-index: -1;
+}
+header h1 {
+    margin: 0;
+}
+.center-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}

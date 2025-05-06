@@ -24,6 +24,12 @@ def login():
         return redirect('/success')
     return render_template('login.html', title='Авторизация', form=form)
 
+@app.route('/table')
+def table():
+    gender = request.args.get('gender')
+    age_str = request.args.get('age')
+    return render_template('training.html', gender=gender, age=int(age_str))
+
 @app.route('/selection', methods=['POST', 'GET'])
 def form_sample():
     if request.method == 'GET':
