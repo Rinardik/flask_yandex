@@ -5,13 +5,16 @@ from wtforms.validators import DataRequired
 import os
 import json
 import random
+from data.db_session import global_init, create_session
+from data.jobs import Jobs
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 CREW_JSON_PATH = os.path.join(app.root_path, 'templates', 'astr.json')
-
+db_path = os.path.join(os.getcwd(), 'db', 'blog.db')
+global_init(db_path)
 
 def get_random_crew_member():
     with open(CREW_JSON_PATH, encoding='utf-8') as f:
@@ -225,6 +228,13 @@ def form_sample():
             <p><strong>Мотивация:</strong> {motivation}</p>
             <p><strong>Готов остаться на Марсе:</strong> {'Да' if stay_on_mars else 'Нет'}</p>
         '''
+
+@app.route('/jobs')
+def jobs_list():
+    session = create_session()
+    jobs = session.query(Jobs).all()
+    return render_template('journal.html', jobs=jobs)
+
 
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')
