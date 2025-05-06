@@ -1,75 +1,67 @@
-from flask import Flask, url_for, request
-import os
-UPLOAD_FOLDER = os.path.join('static', 'img')
+from flask import Flask, render_template_string
 
 app = Flask(__name__)
+app.config['STATIC_FOLDER'] = 'static'
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
-@app.route('/load_photo', methods=['POST', 'GET'])
-def form_sample():
-    image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'default.jpg')
-    if request.method == 'POST':
-        if 'photo' in request.files:
-            file = request.files['photo']
-            if file.filename != '':
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'uploaded_image.jpg'))
-                image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'uploaded_image.jpg')
-    image_url = url_for('static', filename=f"img/{os.path.basename(image_path)}")
-    return f'''<!doctype html>
+@app.route('/')
+def index():
+    images = [
+        'img/mars1.jpg',
+        'img/mars2.jpg',
+        'img/mars3.jpg'
+    ]
+    html_template = '''
+    <!doctype html>
     <html lang="en">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-            integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
-            crossorigin="anonymous">
-        <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
-        <title>Загрузка файла</title>
+        <title>Пейзажи Марса</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" 
+              rel="stylesheet" 
+              integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" 
+              crossorigin="anonymous">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" />
     </head>
     <body>
         <div class="container mt-5">
-            <h1 class="page">Загрузка фотографии</h1>
-            <h3 class="page">для участия в миссии</h3>
-            <form class="login_form" method="post" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label for="photo" class="form-label">Приложите фотографию</label>
-                    <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+            <h1 class="text-center mb-4">Пейзажи Марса</h1>
+            <div id="marsCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    {% for i in range(images|length) %}
+                        <button type="button" data-bs-target="#marsCarousel" data-bs-slide-to="{{ i }}"
+                                {% if i == 0 %}class="active"{% endif %} aria-current="true"
+                                aria-label="Slide {{ i + 1 }}"></button>
+                    {% endfor %}
                 </div>
-                <div class="image-preview">
-                    <p class="no-file-text">Файл не выбран</p>
-                    <img id="preview-image" src="{image_url}" alt="Загруженное изображение" style="display: none;">
+                <div class="carousel-inner rounded">
+                    {% for image in images %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <img src="{{ url_for('static', filename=image) }}" class="d-block w-100" alt="Пейзаж Марса">
+                        </div>
+                    {% endfor %}
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Отправить</button>
-            </form>
+                <button class="carousel-control-prev" type="button" data-bs-target="#marsCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Предыдущий</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#marsCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Следующий</span>
+                </button>
+            </div>
         </div>
-        <script>
-            document.getElementById('photo').addEventListener('change', function(event) {{
-                const input = event.target;
-                const previewImage = document.getElementById('preview-image');
-                const noFileText = document.querySelector('.no-file-text');
 
-                if (input.files && input.files[0]) {{
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {{
-                        previewImage.src = e.target.result;
-                        previewImage.style.display = 'block';
-                        noFileText.style.display = 'none';
-                    }};
-                    reader.readAsDataURL(input.files[0]);
-                }} else {{
-                    previewImage.src = '';
-                    previewImage.style.display = 'none';
-                    noFileText.style.display = 'block';
-                }}
-            }});
-        </script>
+        <!-- Bootstrap JS Bundle -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" 
+                integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" 
+                crossorigin="anonymous"></script>
     </body>
-    </html>'''
+    </html>
+    '''
+    return render_template_string(html_template, images=images)
 
 if __name__ == '__main__':
-    app.run(port=8080, host='127.0.0.1')
+    app.run(debug=True, port=8080)
