@@ -1,0 +1,20 @@
+[
+    {
+        "first_name": "Иван",
+        "last_name": "Иванов",
+        "photo": "/static/img/big_man.jpg",
+        "professions": ["инженер-исследователь", "инженер жизнеобеспечения"]
+    },
+    {
+        "first_name": "Петр",
+        "last_name": "Петров",
+        "photo": "/static/img/lower_man.jpg",
+        "professions": ["пилот", "штурман", "оператор марсохода"]
+    },
+    {
+        "first_name": "Анна",
+        "last_name": "Смирнова",
+        "photo": "/static/img/big_women.jpg",
+        "professions": ["врач", "экзобиолог", "климатолог"]
+    }
+]

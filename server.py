@@ -3,11 +3,20 @@ from wtforms import StringField, PasswordField, SubmitField
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired
 import os
+import json
+import random
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+CREW_JSON_PATH = os.path.join(app.root_path, 'templates', 'astr.json')
+
+
+def get_random_crew_member():
+    with open(CREW_JSON_PATH, encoding='utf-8') as f:
+        crew = json.load(f)
+    return random.choice(crew)
 
 
 class LoginForm(FlaskForm):
@@ -16,6 +25,12 @@ class LoginForm(FlaskForm):
     id_kap = StringField('id астронавта', validators=[DataRequired()])
     password_kap = PasswordField('Пароль астронавта', validators=[DataRequired()])
     submit = SubmitField('Доступ')
+
+
+@app.route('/member')
+def member():
+    member_data = get_random_crew_member()
+    return render_template('member.html', member=member_data)
 
 @app.route('/galery')
 def index():
