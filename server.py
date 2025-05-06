@@ -7,7 +7,7 @@ app = Flask(__name__)
 def index():
     return "Привет, Яндекс!"
 
-@app.route('/selection', methods=['POST', 'GET'])
+@app.route('/astronaut_selection', methods=['POST', 'GET'])
 def form_sample():
     if request.method == 'GET':
         return f'''<!doctype html>
