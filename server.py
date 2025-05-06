@@ -1,13 +1,13 @@
-from flask import Flask, request, url_for, redirect, render_template
+from flask import Flask, request, url_for, redirect, render_template, render_template_string
 from wtforms import StringField, PasswordField, SubmitField
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-
-def index():
-    return "Привет, Яндекс!"
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 
 class LoginForm(FlaskForm):
@@ -17,6 +17,25 @@ class LoginForm(FlaskForm):
     password_kap = PasswordField('Пароль астронавта', validators=[DataRequired()])
     submit = SubmitField('Доступ')
 
+@app.route('/galery')
+def index():
+    default_images = ['img/mars1.jpg',
+        'img/mars2.jpg',
+        'img/mars3.jpg']
+    uploaded_files = [f'uploads/{f}' for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    images = default_images + uploaded_files
+    return render_template_string(open('gal.html').read(), images=images)
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_image():
+    if request.method == 'POST':
+        file = request.files.get('photo')
+        if file and file.filename != '':
+            filename = file.filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('index'))
+    return render_template_string(open('ins.html').read(), image_url=url_for('static', filename='css/style.css')[:-len('style.css')] + 'img/placeholder.jpg')
+    
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
